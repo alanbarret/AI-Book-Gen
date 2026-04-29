@@ -321,46 +321,6 @@ st.markdown('<div class="sub-header">Write full-length books in minutes — with
 
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### ⚙️ Configuration")
-
-    provider = st.radio(
-        "AI Provider",
-        ["Groq", "OpenAI"],
-        index=0 if st.session_state.provider == "Groq" else 1,
-        horizontal=True,
-        help="Groq is free and fast. OpenAI requires a paid key."
-    )
-    if provider != st.session_state.provider:
-        st.session_state.provider = provider
-        st.session_state.groq_client = None
-        st.session_state.openai_client = None
-
-    if provider == "Groq":
-        api_key = st.text_input(
-            "Groq API Key",
-            value=st.session_state.groq_api_key,
-            type="password",
-            help="Free at console.groq.com",
-        )
-        if api_key != st.session_state.groq_api_key:
-            st.session_state.groq_api_key = api_key
-            st.session_state.groq_client = None
-        model = st.selectbox("Model", GROQ_MODELS, index=0,
-                              help="Llama 3.3 70B = best quality · Llama 3.1 8B = fastest")
-    else:
-        api_key = st.text_input(
-            "OpenAI API Key",
-            value=st.session_state.openai_api_key,
-            type="password",
-            help="Get your key at platform.openai.com",
-        )
-        if api_key != st.session_state.openai_api_key:
-            st.session_state.openai_api_key = api_key
-            st.session_state.openai_client = None
-        model = st.selectbox("Model", OPENAI_MODELS, index=0,
-                              help="GPT-4o = best quality · GPT-4o-mini = cheapest")
-
-    st.markdown("---")
     st.markdown("### 📊 Generation Stats")
     if st.session_state.stats["tokens"] > 0:
         c1, c2 = st.columns(2)
@@ -370,7 +330,7 @@ with st.sidebar:
             st.markdown(f'<div class="stat-box"><div class="stat-val">{st.session_state.stats["speed"]:.0f}</div><div class="stat-label">Tokens/sec</div></div>', unsafe_allow_html=True)
         st.markdown(f'<div class="stat-box"><div class="stat-val">{st.session_state.stats["time"]:.1f}s</div><div class="stat-label">Total Time</div></div>', unsafe_allow_html=True)
     else:
-        st.info("Stats will appear during generation")
+        st.info("Stats will appear after generation")
 
     if st.session_state.chapters:
         st.markdown("---")
@@ -379,11 +339,60 @@ with st.sidebar:
             done = title in st.session_state.chapters
             icon = "✅" if done else "⏳"
             st.markdown(f"{icon} {title[:35]}{'...' if len(title)>35 else ''}")
-
 # ─── Main form ────────────────────────────────────────────────────────────────
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
+    # ─── Configuration expander ────────────────────────────────────────
+    has_key = st.session_state.groq_api_key or st.session_state.openai_api_key
+    with st.expander("⚙️ Configuration", expanded=not has_key):
+        provider = st.radio(
+            "AI Provider",
+            ["Groq", "OpenAI"],
+            index=0 if st.session_state.provider == "Groq" else 1,
+            horizontal=True,
+            help="Groq is free and fast. OpenAI requires a paid key."
+        )
+        if provider != st.session_state.provider:
+            st.session_state.provider = provider
+            st.session_state.groq_client = None
+            st.session_state.openai_client = None
+
+        if provider == "Groq":
+            api_key = st.text_input(
+                "Groq API Key",
+                value=st.session_state.groq_api_key,
+                type="password",
+                help="Free at console.groq.com",
+            )
+            if api_key != st.session_state.groq_api_key:
+                st.session_state.groq_api_key = api_key
+                st.session_state.groq_client = None
+            model = st.selectbox("Model", GROQ_MODELS, index=0,
+                                  help="Llama 3.3 70B = best quality · Llama 3.1 8B = fastest")
+            st.session_state.selected_model = model
+        else:
+            api_key = st.text_input(
+                "OpenAI API Key",
+                value=st.session_state.openai_api_key,
+                type="password",
+                help="Get your key at platform.openai.com",
+            )
+            if api_key != st.session_state.openai_api_key:
+                st.session_state.openai_api_key = api_key
+                st.session_state.openai_client = None
+            model = st.selectbox("Model", OPENAI_MODELS, index=0,
+                                  help="GPT-4o = best quality · GPT-4o-mini = cheapest")
+            st.session_state.selected_model = model
+
+    # Persist model in session state so it survives reruns
+    if "selected_model" not in st.session_state:
+        st.session_state.selected_model = GROQ_MODELS[0]
+    try:
+        model = st.session_state.selected_model
+    except:
+        model = GROQ_MODELS[0]
+
     st.markdown("### 📝 Book Details")
 
     topic = st.text_area(
