@@ -82,6 +82,7 @@ def init_state():
         "progress": 0,
         "total_chapters": 0,
         "stats": {"tokens": 0, "time": 0, "speed": 0},
+        "words_per_chapter": 1500,
         "errors": [],
         "completed": False,
     }
@@ -194,6 +195,7 @@ def generate_chapter(
     model: str,
     additional: str,
     prev_summary: str = "",
+    words_per_chapter: int = 1500,
 ) -> tuple[str, str, dict]:
     """
     Generate a single chapter. Returns (title, content, stats).
@@ -209,7 +211,7 @@ def generate_chapter(
         f"Writing style: {style}. "
         f"Write richly detailed, engaging, well-structured content. "
         f"Use markdown for formatting (## for subchapter headings). "
-        f"Minimum 1500 words per chapter."
+        f"Write approximately {words_per_chapter} words for this chapter."
     )
 
     user_prompt = (
@@ -217,11 +219,12 @@ def generate_chapter(
         f"Subchapters to cover:\n{subchapters}\n"
         f"{context}\n"
         f"Additional instructions: {additional or 'None'}\n\n"
-        f"Write the complete chapter now. Be thorough and detailed."
+        f"Target length: ~{words_per_chapter} words. Write the complete chapter now."
     )
 
     start = time.time()
     content = ""
+    dynamic_max_tokens = min(8192, max(2048, int(words_per_chapter * 1.4)))
 
     stream = ai_complete(
         messages=[
@@ -229,7 +232,7 @@ def generate_chapter(
             {"role": "user", "content": user_prompt}
         ],
         model=model,
-        max_tokens=4096,
+        max_tokens=dynamic_max_tokens,
         temperature=0.6,
         stream=True,
     )
@@ -398,6 +401,14 @@ with col_left:
     with c2:
         language = st.selectbox("Language", ["English", "Arabic", "French", "Spanish", "German"])
 
+    target_pages = st.slider(
+        "📄 Target Pages",
+        min_value=50, max_value=500, value=150, step=25,
+        help="Approximate page count (1 page ≈ 300 words)"
+    )
+    words_per_chapter = max(800, (target_pages * 300) // num_chapters)
+    st.caption(f"~{target_pages * 300:,} total words · ~{words_per_chapter:,} words/chapter · ~{target_pages} pages")
+
     additional = st.text_area(
         "Additional Instructions (optional)",
         placeholder="E.g., 'Include real-world examples', 'Target audience: beginners', 'Add exercises at end of each chapter'",
@@ -466,6 +477,7 @@ with col_right:
             st.session_state.chapters = {}
             st.session_state.errors = []
             st.session_state.stats = {"tokens": 0, "time": 0, "speed": 0}
+            st.session_state.words_per_chapter = words_per_chapter
             st.rerun()
 
     # Progress display during generation
@@ -479,6 +491,7 @@ with col_right:
 
 # ─── Generation pipeline ─────────────────────────────────────────────────────
 if st.session_state.generating and not st.session_state.completed:
+    words_per_chapter = st.session_state.get("words_per_chapter", 1500)
 
     with st.spinner("🏗️ Building book structure..."):
         try:
@@ -529,7 +542,8 @@ if st.session_state.generating and not st.session_state.completed:
                     ch_title, ch_desc,
                     book_title, genre, writing_style,
                     language, model, additional,
-                    ""  # No prev summary in parallel mode
+                    "",
+                    words_per_chapter,
                 ): ch_title
                 for ch_title, ch_desc in chapters_list
             }
@@ -571,7 +585,8 @@ if st.session_state.generating and not st.session_state.completed:
                         ch_title, ch_desc,
                         book_title, genre, writing_style,
                         language, model, additional,
-                        prev_summary
+                        prev_summary,
+                        words_per_chapter,
                     )
                     st.session_state.chapters[ch_title] = content
                     st.session_state.progress += 1
