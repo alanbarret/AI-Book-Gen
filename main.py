@@ -23,11 +23,46 @@ load_dotenv()
 
 # ─── Page config ────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="AI Book Generator",
+    page_title="AI Book Generator — Inspired Technology",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ─── Page routing ─────────────────────────────────────────────────────────────
+if "page" not in st.session_state:
+    st.session_state.page = "landing"
+
+# URL param override
+params = st.query_params
+if params.get("page") == "app":
+    st.session_state.page = "app"
+
+# Show landing page
+if st.session_state.page == "landing":
+    from landing import show_landing
+    show_landing()
+
+    # Check if a start button was clicked (via session state flag set by JS bridge)
+    if st.button("✨ Start Writing Free", key="hero_start", type="primary",
+                 use_container_width=False):
+        st.session_state.page = "app"
+        st.rerun()
+
+    # Hidden button trick for JS — use query param instead
+    if st.query_params.get("start") == "1":
+        st.session_state.page = "app"
+        st.rerun()
+
+    # Add a visible CTA button below the HTML (Streamlit buttons work in the flow)
+    st.markdown("<div style='height:1px'></div>", unsafe_allow_html=True)
+    cols = st.columns([3, 2, 3])
+    with cols[1]:
+        if st.button("✨ Start Writing Free →", type="primary", use_container_width=True, key="cta_start"):
+            st.session_state.page = "app"
+            st.rerun()
+
+    st.stop()
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 GROQ_MODELS = [
@@ -392,6 +427,20 @@ st.markdown("""
     border-radius: 4px; margin: 4px 0; font-size: .9rem; color: #888; }
 </style>
 """, unsafe_allow_html=True)
+
+# App page top navbar
+st.markdown('''
+<div class="app-navbar">
+  <div class="app-nav-logo">📚 AI Book<span>Gen</span></div>
+  <a href="https://inspiredtechnology.ae" target="_blank" style="color:#a78bfa;font-size:12px;text-decoration:none">by Inspired Technology ↗</a>
+</div>
+''', unsafe_allow_html=True)
+
+col_back, _ = st.columns([1, 6])
+with col_back:
+    if st.button("← Back to Home", key="back_home"):
+        st.session_state.page = "landing"
+        st.rerun()
 
 st.markdown('<div class="main-header">📚 AI Book Generator</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Write full-length books in minutes — with parallel AI generation</div>', unsafe_allow_html=True)
