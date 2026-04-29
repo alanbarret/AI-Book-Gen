@@ -37,6 +37,13 @@ GROQ_MODELS = [
     "mixtral-8x7b-32768",
 ]
 
+OPENAI_MODELS = [
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4-turbo",
+    "gpt-3.5-turbo",
+]
+
 BOOK_GENRES = [
     "Non-Fiction / Self-Help",
     "Fiction / Novel",
@@ -62,8 +69,11 @@ WRITING_STYLES = [
 # ─── Session state ─────────────────────────────────────────────────────────
 def init_state():
     defaults = {
+        "provider": "Groq",
         "groq_client": None,
+        "openai_client": None,
         "groq_api_key": os.getenv("GROQ_API_KEY", ""),
+        "openai_api_key": os.getenv("OPENAI_API_KEY", ""),
         "book": None,
         "book_title": "",
         "structure": {},
@@ -83,16 +93,24 @@ init_state()
 
 # ─── AI Client ──────────────────────────────────────────────────────────────
 def get_client():
-    key = st.session_state.groq_api_key
-    if not key:
-        return None
-    if not st.session_state.groq_client:
-        st.session_state.groq_client = Groq(api_key=key)
-    return st.session_state.groq_client
+    if st.session_state.provider == "OpenAI":
+        key = st.session_state.openai_api_key
+        if not key:
+            return None, "openai"
+        if not st.session_state.openai_client:
+            st.session_state.openai_client = openai.OpenAI(api_key=key)
+        return st.session_state.openai_client, "openai"
+    else:
+        key = st.session_state.groq_api_key
+        if not key:
+            return None, "groq"
+        if not st.session_state.groq_client:
+            st.session_state.groq_client = Groq(api_key=key)
+        return st.session_state.groq_client, "groq"
 
 def ai_complete(messages, model, max_tokens=4096, temperature=0.7, stream=False, json_mode=False):
-    """Single AI call with retry logic."""
-    client = get_client()
+    """Single AI call with retry logic — supports Groq and OpenAI."""
+    client, provider = get_client()
     if not client:
         raise ValueError("No API key configured")
 
@@ -302,18 +320,42 @@ st.markdown('<div class="sub-header">Write full-length books in minutes — with
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
 
-    api_key = st.text_input(
-        "Groq API Key",
-        value=st.session_state.groq_api_key,
-        type="password",
-        help="Get your free key at console.groq.com",
+    provider = st.radio(
+        "AI Provider",
+        ["Groq", "OpenAI"],
+        index=0 if st.session_state.provider == "Groq" else 1,
+        horizontal=True,
+        help="Groq is free and fast. OpenAI requires a paid key."
     )
-    if api_key != st.session_state.groq_api_key:
-        st.session_state.groq_api_key = api_key
+    if provider != st.session_state.provider:
+        st.session_state.provider = provider
         st.session_state.groq_client = None
+        st.session_state.openai_client = None
 
-    model = st.selectbox("AI Model", GROQ_MODELS, index=0,
-                          help="Llama 3.3 70B = best quality. Llama 3.1 8B = fastest.")
+    if provider == "Groq":
+        api_key = st.text_input(
+            "Groq API Key",
+            value=st.session_state.groq_api_key,
+            type="password",
+            help="Free at console.groq.com",
+        )
+        if api_key != st.session_state.groq_api_key:
+            st.session_state.groq_api_key = api_key
+            st.session_state.groq_client = None
+        model = st.selectbox("Model", GROQ_MODELS, index=0,
+                              help="Llama 3.3 70B = best quality · Llama 3.1 8B = fastest")
+    else:
+        api_key = st.text_input(
+            "OpenAI API Key",
+            value=st.session_state.openai_api_key,
+            type="password",
+            help="Get your key at platform.openai.com",
+        )
+        if api_key != st.session_state.openai_api_key:
+            st.session_state.openai_api_key = api_key
+            st.session_state.openai_client = None
+        model = st.selectbox("Model", OPENAI_MODELS, index=0,
+                              help="GPT-4o = best quality · GPT-4o-mini = cheapest")
 
     st.markdown("---")
     st.markdown("### 📊 Generation Stats")
@@ -408,15 +450,17 @@ with col_right:
             "✨ Generate Book",
             type="primary",
             use_container_width=True,
-            disabled=not st.session_state.groq_api_key or len(topic.strip()) < 10,
+            disabled=not (st.session_state.groq_api_key or st.session_state.openai_api_key) or len(topic.strip()) < 10,
         )
 
-        if not st.session_state.groq_api_key:
-            st.warning("⚠️ Enter your Groq API key in the sidebar")
+        has_key = st.session_state.groq_api_key if st.session_state.provider == "Groq" else st.session_state.openai_api_key
+        if not has_key:
+            st.warning(f"⚠️ Enter your {st.session_state.provider} API key in the sidebar")
         elif len(topic.strip()) < 10:
             st.info("Enter a book topic to get started")
 
-        if generate_btn and topic.strip() and st.session_state.groq_api_key:
+        active_key = st.session_state.groq_api_key if st.session_state.provider == "Groq" else st.session_state.openai_api_key
+        if generate_btn and topic.strip() and active_key:
             st.session_state.generating = True
             st.session_state.completed = False
             st.session_state.chapters = {}
