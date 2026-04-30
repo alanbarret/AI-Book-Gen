@@ -26,7 +26,7 @@ st.set_page_config(
     page_title="AI Book Generator - Inspired Technology",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # --- Page routing -------------------------------------------------------------
@@ -556,7 +556,7 @@ st.markdown('''
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("Back to Home", key="back_home"):
+    if st.button("Back to Home", key="back_home", icon=":material/arrow_back:"):
         st.session_state.page = "landing"
         st.rerun()
 
@@ -569,7 +569,7 @@ st.markdown("""
 
 # --- Sidebar ------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### Generation Stats")
+    st.markdown("<h3 style='font-size:14px;font-weight:700;color:#e5e7eb;margin-bottom:8px'>📊 Generation Stats</h3>", unsafe_allow_html=True)
     if st.session_state.stats["tokens"] > 0:
         c1, c2 = st.columns(2)
         with c1:
@@ -582,7 +582,7 @@ with st.sidebar:
 
     if st.session_state.chapters:
         st.markdown("---")
-        st.markdown("### Chapters")
+        st.markdown("<h3 style='font-size:14px;font-weight:700;color:#e5e7eb;margin-bottom:8px'>📑 Chapters</h3>", unsafe_allow_html=True)
         for title in st.session_state.structure.keys():
             done = title in st.session_state.chapters
             icon = "✅" if done else "⏳"
@@ -592,7 +592,7 @@ col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key)):
+    with st.expander("Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key), icon=":material/settings:"):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -620,7 +620,7 @@ with col_left:
         st.session_state.selected_model = GROQ_MODELS[0]
     model = st.session_state.get("selected_model", GROQ_MODELS[0])
 
-    st.markdown('<div class="section-heading">Book Details</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">📝 Book Details</div>', unsafe_allow_html=True)
 
     topic = st.text_area(
         "What is your book about?",
@@ -659,7 +659,7 @@ with col_left:
                              help="How many chapters to generate at once") if parallel else 1
 
 with col_right:
-    st.markdown('<div class="section-heading">Generate</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">🚀 Generate</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
         st.success(f"Your book **{st.session_state.book_title}** is ready!")
@@ -686,7 +686,7 @@ with col_right:
         except Exception as e:
             st.warning(f"PDF export unavailable: {e}")
 
-        if st.button("Generate New Book", use_container_width=True):
+        if st.button("Generate New Book", use_container_width=True, icon=":material/refresh:"):
             for k in ["book", "book_title", "structure", "chapters", "generating", "progress",
                       "total_chapters", "stats", "errors", "completed"]:
                 del st.session_state[k]
