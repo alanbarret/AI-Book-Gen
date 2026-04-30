@@ -532,7 +532,7 @@ st.markdown('''
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("< Back to Home", key="back_home"):
+    if st.button("Back to Home", key="back_home"):
         st.session_state.page = "landing"
         st.rerun()
 
@@ -568,7 +568,7 @@ col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("⚙️ Configuration", expanded=False):
+    with st.expander("Configuration", expanded=False):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -627,7 +627,7 @@ with col_left:
         height=80,
     )
 
-    parallel = st.toggle("⚡ Parallel Generation", value=True,
+    parallel = st.toggle("Parallel Generation", value=True,
                           help="Generate multiple chapters simultaneously - much faster but uses more API credits")
 
     max_workers = st.slider("Parallel Workers", 2, 6, 3,
@@ -638,7 +638,7 @@ with col_right:
     st.markdown('<div class="section-heading">⚠️ Generate Your Book</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
-        st.success(f"⚠️ **{st.session_state.book_title}** is ready!")
+        st.success(f"Your book **{st.session_state.book_title}** is ready!")
 
         # Download buttons
         md_content = build_markdown(st.session_state.book_title, st.session_state.chapters)
@@ -690,7 +690,7 @@ with col_right:
 
     # Progress display during generation
     if st.session_state.generating:
-        st.info("⚠️ Generating your book... this may take a few minutes.")
+        st.info("Generating your book... this may take a few minutes.")
         if st.session_state.total_chapters > 0:
             prog = st.session_state.progress / st.session_state.total_chapters
             st.progress(prog, text=f"{st.session_state.progress}/{st.session_state.total_chapters} chapters complete")
@@ -707,7 +707,7 @@ if st.session_state.generating and not st.session_state.completed:
         st.session_state.generating = False
         st.stop()
 
-    with st.spinner("📝 Building book structure..."):
+    with st.spinner("Building book structure..."):
         try:
             # Step 1: Generate title
             book_title = generate_book_title(topic, genre, language, model)
@@ -742,7 +742,7 @@ if st.session_state.generating and not st.session_state.completed:
 
     if parallel and max_workers > 1:
         # -- PARALLEL generation ------------------------------------------
-        st.info(f"⚠️ Generating {len(chapters_list)} chapters in parallel ({max_workers} workers)...")
+        st.info(f"Generating {len(chapters_list)} chapters in parallel ({max_workers} workers)...")
 
         # For parallel mode, we can't do sequential summarization easily,
         # so we use the structure description as context instead
@@ -795,7 +795,7 @@ if st.session_state.generating and not st.session_state.completed:
 
     else:
         # -- SEQUENTIAL generation with continuity ----------------------
-        st.info("⚠️ Generating chapters sequentially with continuity context...")
+        st.info("Generating chapters sequentially with continuity context...")
         prev_summary = ""
 
         for i, (ch_title, ch_desc) in enumerate(chapters_list):
@@ -851,7 +851,7 @@ if st.session_state.completed and st.session_state.chapters:
             st.markdown(content)
 
     if st.session_state.errors:
-        with st.expander(f"⚠️ {len(st.session_state.errors)} errors during generation"):
+        with st.expander(f"{len(st.session_state.errors)} errors during generation"):
             for err in st.session_state.errors:
                 st.error(err)
 
