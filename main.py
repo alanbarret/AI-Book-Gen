@@ -43,24 +43,9 @@ if st.session_state.page == "landing":
     from landing import show_landing
     show_landing()
 
-    # Check if a start button was clicked (via session state flag set by JS bridge)
-    if st.button("✨ Start Writing Free", key="hero_start", type="primary",
-                 use_container_width=False):
-        st.session_state.page = "app"
-        st.rerun()
-
-    # Hidden button trick for JS — use query param instead
     if st.query_params.get("start") == "1":
         st.session_state.page = "app"
         st.rerun()
-
-    # Add a visible CTA button below the HTML (Streamlit buttons work in the flow)
-    st.markdown("<div style='height:1px'></div>", unsafe_allow_html=True)
-    cols = st.columns([3, 2, 3])
-    with cols[1]:
-        if st.button("✨ Start Writing Free →", type="primary", use_container_width=True, key="cta_start"):
-            st.session_state.page = "app"
-            st.rerun()
 
     st.stop()
 
@@ -415,16 +400,120 @@ def build_pdf(title: str, chapters: dict) -> bytes:
 # ─── UI ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-.main-header { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .2em; }
-.sub-header { color: #666; font-size: 1rem; margin-bottom: 2em; }
-.stat-box { background: #f8f9fa; border-radius: 8px; padding: 12px 16px; text-align: center; }
-.stat-val { font-size: 1.4rem; font-weight: 700; color: #2d3561; }
-.stat-label { font-size: .75rem; color: #888; margin-top: 2px; }
-.chapter-done { background: #d4edda; border-left: 4px solid #28a745; padding: 6px 12px;
-    border-radius: 4px; margin: 4px 0; font-size: .9rem; }
-.chapter-pending { background: #f8f9fa; border-left: 4px solid #ccc; padding: 6px 12px;
-    border-radius: 4px; margin: 4px 0; font-size: .9rem; color: #888; }
+/* ── Global app styles ───────────────────────────────────────── */
+[data-testid="stAppViewContainer"] { background: #06060f; }
+[data-testid="stSidebar"] { background: #11111a; border-right: 1px solid rgba(255,255,255,0.06); }
+[data-testid="stSidebar"] .block-container { padding-top: 1.5rem; }
+
+/* ── Mobile: stack all columns ───────────────────────────────── */
+@media (max-width: 768px) {
+    [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+    [data-testid="stHorizontalBlock"] > [data-testid="column"] {
+        min-width: 100% !important; flex: 1 1 100% !important;
+    }
+    .block-container { padding: 1rem 1rem 4rem !important; }
+    [data-testid="stSidebar"] { min-width: 80vw !important; }
+}
+
+/* ── App header ──────────────────────────────────────────────── */
+.app-header-wrap { margin-bottom: 1.5rem; }
+.app-header-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900;
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 60%, #ec4899 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; line-height: 1.2; margin-bottom: 0.2rem;
+}
+.app-header-sub { color: #9ca3af; font-size: 0.95rem; margin-bottom: 0; }
+
+/* ── App navbar ──────────────────────────────────────────────── */
+.app-navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 18px; margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.app-nav-logo { font-size: 16px; font-weight: 800; color: #f9fafb; }
+.app-nav-logo span { color: #8b5cf6; }
+
+/* ── Sidebar stats ───────────────────────────────────────────── */
+.stat-box {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+    padding: 12px 16px; text-align: center; margin-bottom: 8px;
+}
+.stat-val { font-size: 1.35rem; font-weight: 800; color: #a855f7; }
+.stat-label { font-size: .72rem; color: #9ca3af; margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Section headings ────────────────────────────────────────── */
+.section-heading {
+    font-size: 1rem; font-weight: 700; color: #f9fafb;
+    margin: 1.4rem 0 0.7rem; display: flex; align-items: center; gap: 8px;
+}
+
+/* ── Form elements ───────────────────────────────────────────── */
+[data-testid="stTextArea"] textarea,
+[data-testid="stTextInput"] input {
+    border-radius: 10px !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    font-size: 0.92rem !important;
+    background-color: rgba(255,255,255,0.03) !important;
+    color: #f9fafb !important;
+}
+[data-testid="stTextArea"] textarea:focus,
+[data-testid="stTextInput"] input:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.12) !important;
+}
+[data-testid="stSelectbox"] > div > div {
+    border-radius: 10px !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    background-color: rgba(255,255,255,0.03) !important;
+}
+
+/* ── Primary button ──────────────────────────────────────────── */
+[data-testid="stBaseButton-primary"] > button,
+button[kind="primary"] {
+    background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+    border: none !important; border-radius: 10px !important;
+    font-weight: 700 !important; font-size: 15px !important;
+    color: #fff !important;
+    box-shadow: 0 0 16px rgba(124,58,237,0.3) !important;
+    transition: transform .15s, box-shadow .15s !important;
+}
+[data-testid="stBaseButton-primary"] > button:hover,
+button[kind="primary"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 24px rgba(124,58,237,0.5) !important;
+}
+
+/* ── Download buttons ────────────────────────────────────────── */
+[data-testid="stDownloadButton"] > button {
+    border-radius: 10px !important; font-weight: 600 !important;
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #f9fafb !important;
+}
+[data-testid="stDownloadButton"] > button:hover {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+}
+
+/* ── Chapter preview cards ───────────────────────────────────── */
+.chapter-card {
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
+    padding: 16px 20px; margin: 8px 0;
+    border-left: 4px solid #8b5cf6;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+}
+.chapter-card-title { font-weight: 700; color: #f9fafb; font-size: 0.9rem; margin-bottom: 6px; }
+.chapter-card-preview { color: #9ca3af; font-size: 0.82rem; line-height: 1.6; }
+
+/* ── Info / success / warning tweaks ────────────────────────── */
+[data-testid="stAlert"] { border-radius: 10px !important; }
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+[data-testid="stTabs"] [data-testid="stTab"] {
+    font-weight: 600 !important; font-size: 0.85rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -442,8 +531,12 @@ with col_back:
         st.session_state.page = "landing"
         st.rerun()
 
-st.markdown('<div class="main-header">📚 AI Book Generator</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Write full-length books in minutes — with parallel AI generation</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="app-header-wrap">
+  <div class="app-header-title">📚 AI Book Generator</div>
+  <div class="app-header-sub">Write full-length books in minutes — powered by parallel AI generation</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -498,12 +591,12 @@ with col_left:
         st.session_state.selected_model = GROQ_MODELS[0]
     model = st.session_state.get("selected_model", GROQ_MODELS[0])
 
-    st.markdown("### 📝 Book Details")
+    st.markdown('<div class="section-heading">📝 Book Details</div>', unsafe_allow_html=True)
 
     topic = st.text_area(
         "What is your book about?",
         placeholder="E.g., 'The psychology of habit formation and how to rewire your brain for success'",
-        height=100,
+        height=250,
     )
 
     genre = st.selectbox("Genre", BOOK_GENRES)
@@ -537,7 +630,7 @@ with col_left:
                              help="How many chapters to generate at once") if parallel else 1
 
 with col_right:
-    st.markdown("### 🚀 Generate")
+    st.markdown('<div class="section-heading">🚀 Generate Your Book</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
         st.success(f"✅ **{st.session_state.book_title}** is ready!")
@@ -674,10 +767,12 @@ if st.session_state.generating and not st.session_state.completed:
                     st.session_state.progress += 1
                     total_tokens += stats["output_tokens"] + stats["input_tokens"]
 
-                    # Update placeholder
                     if title in chapter_placeholders:
+                        preview = content[:300].replace("\n", " ").strip()
                         chapter_placeholders[title].markdown(
-                            f"### ✅ {title}\n\n{content[:500]}...\n\n---"
+                            f'<div class="chapter-card"><div class="chapter-card-title">✅ {title}</div>'
+                            f'<div class="chapter-card-preview">{preview}...</div></div>',
+                            unsafe_allow_html=True,
                         )
 
                 except Exception as e:
@@ -713,8 +808,11 @@ if st.session_state.generating and not st.session_state.completed:
                     st.session_state.progress += 1
                     total_tokens += stats["output_tokens"] + stats["input_tokens"]
 
+                    preview = content[:300].replace("\n", " ").strip()
                     chapter_placeholders[ch_title].markdown(
-                        f"### ✅ {ch_title}\n\n{content[:400]}...\n\n---"
+                        f'<div class="chapter-card"><div class="chapter-card-title">✅ {ch_title}</div>'
+                        f'<div class="chapter-card-preview">{preview}...</div></div>',
+                        unsafe_allow_html=True,
                     )
 
                     # Generate summary for next chapter's context
