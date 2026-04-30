@@ -44,6 +44,43 @@ if _qp.get("start") == "1" or _qp.get("page") == "app":
 if st.session_state.page == "landing":
     from landing import show_landing
     show_landing()
+    # Streamlit CTA button - styled to match the landing page design
+    st.markdown("""
+    <style>
+    div[data-testid="stButton"] > button {
+        background: #A8FF4B !important;
+        color: #09090B !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 14px 36px !important;
+        font-size: 17px !important;
+        font-weight: 800 !important;
+        cursor: pointer !important;
+        box-shadow: 0 0 24px rgba(168,255,75,0.4) !important;
+        width: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    div[data-testid="stButton"] > button:hover {
+        background: #BFFF6E !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 0 36px rgba(168,255,75,0.6) !important;
+    }
+    /* Center the button in page */
+    div[data-testid="stButton"] {
+        display: flex !important;
+        justify-content: center !important;
+        margin-top: -60px !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    if st.button("Start Writing Free", key="landing_cta", type="primary"):
+        st.session_state.page = "app"
+        st.rerun()
+
     st.stop()
 
 # --- Constants ----------------------------------------------------------------
