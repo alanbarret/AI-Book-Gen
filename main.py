@@ -24,7 +24,7 @@ load_dotenv()
 # --- Page config ------------------------------------------------------------
 st.set_page_config(
     page_title="AI Book Generator - Inspired Technology",
-    page_icon="?",
+    page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -520,27 +520,27 @@ button[kind="primary"]:hover {
 # App page top navbar
 st.markdown('''
 <div class="app-navbar">
-  <div class="app-nav-logo">? AI Book<span>Gen</span></div>
-  <a href="https://inspiredtechnology.ae" target="_blank" style="color:#a78bfa;font-size:12px;text-decoration:none">by Inspired Technology ?</a>
+  <div class="app-nav-logo">📚 AI Book<span>Gen</span></div>
+  <a href="https://inspiredtechnology.ae" target="_blank" style="color:#a78bfa;font-size:12px;text-decoration:none">by Inspired Technology ↗</a>
 </div>
 ''', unsafe_allow_html=True)
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("<- Back to Home", key="back_home"):
+    if st.button("← Back to Home", key="back_home"):
         st.session_state.page = "landing"
         st.rerun()
 
 st.markdown("""
 <div class="app-header-wrap">
-  <div class="app-header-title">? AI Book Generator</div>
+  <div class="app-header-title">📚 AI Book Generator</div>
   <div class="app-header-sub">Write full-length books in minutes - powered by parallel AI generation</div>
 </div>
 """, unsafe_allow_html=True)
 
 # --- Sidebar ------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### ? Generation Stats")
+    st.markdown("### ⚠️ Generation Stats")
     if st.session_state.stats["tokens"] > 0:
         c1, c2 = st.columns(2)
         with c1:
@@ -553,17 +553,17 @@ with st.sidebar:
 
     if st.session_state.chapters:
         st.markdown("---")
-        st.markdown("### ? Chapters")
+        st.markdown("### ⚠️ Chapters")
         for title in st.session_state.structure.keys():
             done = title in st.session_state.chapters
-            icon = "?" if done else "?"
+            icon = "✅" if done else "⏳"
             st.markdown(f"{icon} {title[:35]}{'...' if len(title)>35 else ''}")
 # --- Main form ----------------------------------------------------------------
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("?? Configuration", expanded=False):
+    with st.expander("⚙️ Configuration", expanded=False):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -591,7 +591,7 @@ with col_left:
         st.session_state.selected_model = GROQ_MODELS[0]
     model = st.session_state.get("selected_model", GROQ_MODELS[0])
 
-    st.markdown('<div class="section-heading">? Book Details</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">⚠️ Book Details</div>', unsafe_allow_html=True)
 
     topic = st.text_area(
         "What is your book about?",
@@ -609,9 +609,9 @@ with col_left:
         language = st.selectbox("Language", ["English", "Arabic", "French", "Spanish", "German"])
 
     target_pages = st.slider(
-        "? Target Pages",
+        "⚠️ Target Pages",
         min_value=50, max_value=500, value=150, step=25,
-        help="Approximate page count (1 page ? 300 words)"
+        help="Approximate page count (1 page ⚠️ 300 words)"
     )
     words_per_chapter = max(800, (target_pages * 300) // num_chapters)
     st.caption(f"~{target_pages * 300:,} total words . ~{words_per_chapter:,} words/chapter . ~{target_pages} pages")
@@ -622,7 +622,7 @@ with col_left:
         height=80,
     )
 
-    parallel = st.toggle("? Parallel Generation", value=True,
+    parallel = st.toggle("⚠️ Parallel Generation", value=True,
                           help="Generate multiple chapters simultaneously - much faster but uses more API credits")
 
     max_workers = st.slider("Parallel Workers", 2, 6, 3,
@@ -630,15 +630,15 @@ with col_left:
                              help="How many chapters to generate at once") if parallel else 1
 
 with col_right:
-    st.markdown('<div class="section-heading">? Generate Your Book</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">⚠️ Generate Your Book</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
-        st.success(f"? **{st.session_state.book_title}** is ready!")
+        st.success(f"⚠️ **{st.session_state.book_title}** is ready!")
 
         # Download buttons
         md_content = build_markdown(st.session_state.book_title, st.session_state.chapters)
         st.download_button(
-            "? Download Markdown",
+            "⚠️ Download Markdown",
             data=md_content.encode("utf-8"),
             file_name=f"{st.session_state.book_title}.md",
             mime="text/markdown",
@@ -648,7 +648,7 @@ with col_right:
         try:
             pdf_bytes = build_pdf(st.session_state.book_title, st.session_state.chapters)
             st.download_button(
-                "? Download PDF",
+                "⚠️ Download PDF",
                 data=pdf_bytes,
                 file_name=f"{st.session_state.book_title}.pdf",
                 mime="application/pdf",
@@ -657,7 +657,7 @@ with col_right:
         except Exception as e:
             st.warning(f"PDF export unavailable: {e}")
 
-        if st.button("? Generate New Book", use_container_width=True):
+        if st.button("⚠️ Generate New Book", use_container_width=True):
             for k in ["book", "book_title", "structure", "chapters", "generating", "progress",
                       "total_chapters", "stats", "errors", "completed"]:
                 del st.session_state[k]
@@ -665,7 +665,7 @@ with col_right:
 
     elif not st.session_state.generating:
         generate_btn = st.button(
-            "? Generate Book",
+            "⚠️ Generate Book",
             type="primary",
             use_container_width=True,
             disabled=len(topic.strip()) < 10,
@@ -685,7 +685,7 @@ with col_right:
 
     # Progress display during generation
     if st.session_state.generating:
-        st.info("? Generating your book... this may take a few minutes.")
+        st.info("⚠️ Generating your book... this may take a few minutes.")
         if st.session_state.total_chapters > 0:
             prog = st.session_state.progress / st.session_state.total_chapters
             st.progress(prog, text=f"{st.session_state.progress}/{st.session_state.total_chapters} chapters complete")
@@ -698,11 +698,11 @@ if st.session_state.generating and not st.session_state.completed:
 
     ai_client, _ = get_client()
     if not ai_client:
-        st.error("? No API key configured.")
+        st.error("⚠️ No API key configured.")
         st.session_state.generating = False
         st.stop()
 
-    with st.spinner("?? Building book structure..."):
+    with st.spinner("📝 Building book structure..."):
         try:
             # Step 1: Generate title
             book_title = generate_book_title(topic, genre, language, model)
@@ -718,11 +718,11 @@ if st.session_state.generating and not st.session_state.completed:
             st.session_state.total_chapters = len(chapters_list)
 
         except Exception as e:
-            st.error(f"? Failed to generate structure: {e}")
+            st.error(f"⚠️ Failed to generate structure: {e}")
             st.session_state.generating = False
             st.stop()
 
-    st.markdown(f"## ? {book_title}")
+    st.markdown(f"## ⚠️ {book_title}")
     st.markdown(f"*{len(chapters_list)} chapters . {genre} . {language}*")
     st.markdown("---")
 
@@ -737,7 +737,7 @@ if st.session_state.generating and not st.session_state.completed:
 
     if parallel and max_workers > 1:
         # -- PARALLEL generation ------------------------------------------
-        st.info(f"? Generating {len(chapters_list)} chapters in parallel ({max_workers} workers)...")
+        st.info(f"⚠️ Generating {len(chapters_list)} chapters in parallel ({max_workers} workers)...")
 
         # For parallel mode, we can't do sequential summarization easily,
         # so we use the structure description as context instead
@@ -770,7 +770,7 @@ if st.session_state.generating and not st.session_state.completed:
                     if title in chapter_placeholders:
                         preview = content[:300].replace("\n", " ").strip()
                         chapter_placeholders[title].markdown(
-                            f'<div class="chapter-card"><div class="chapter-card-title">? {title}</div>'
+                            f'<div class="chapter-card"><div class="chapter-card-title">⚠️ {title}</div>'
                             f'<div class="chapter-card-preview">{preview}...</div></div>',
                             unsafe_allow_html=True,
                         )
@@ -780,7 +780,7 @@ if st.session_state.generating and not st.session_state.completed:
                     errors.append(err_msg)
                     st.session_state.errors.append(err_msg)
                     if ch_title in chapter_placeholders:
-                        chapter_placeholders[ch_title].error(f"? Failed: {ch_title} - {e}")
+                        chapter_placeholders[ch_title].error(f"⚠️ Failed: {ch_title} - {e}")
 
         # Reorder chapters to match original structure
         st.session_state.chapters = {
@@ -790,7 +790,7 @@ if st.session_state.generating and not st.session_state.completed:
 
     else:
         # -- SEQUENTIAL generation with continuity ----------------------
-        st.info("? Generating chapters sequentially with continuity context...")
+        st.info("⚠️ Generating chapters sequentially with continuity context...")
         prev_summary = ""
 
         for i, (ch_title, ch_desc) in enumerate(chapters_list):
@@ -810,7 +810,7 @@ if st.session_state.generating and not st.session_state.completed:
 
                     preview = content[:300].replace("\n", " ").strip()
                     chapter_placeholders[ch_title].markdown(
-                        f'<div class="chapter-card"><div class="chapter-card-title">? {ch_title}</div>'
+                        f'<div class="chapter-card"><div class="chapter-card-title">⚠️ {ch_title}</div>'
                         f'<div class="chapter-card-preview">{preview}...</div></div>',
                         unsafe_allow_html=True,
                     )
@@ -838,7 +838,7 @@ if st.session_state.generating and not st.session_state.completed:
 # --- Display completed book --------------------------------------------------
 if st.session_state.completed and st.session_state.chapters:
     st.markdown("---")
-    st.markdown(f"# ? {st.session_state.book_title}")
+    st.markdown(f"# ⚠️ {st.session_state.book_title}")
 
     tabs = st.tabs(list(st.session_state.chapters.keys())[:20])  # Max 20 tabs
     for tab, (ch_title, content) in zip(tabs, list(st.session_state.chapters.items())[:20]):
@@ -846,7 +846,7 @@ if st.session_state.completed and st.session_state.chapters:
             st.markdown(content)
 
     if st.session_state.errors:
-        with st.expander(f"?? {len(st.session_state.errors)} errors during generation"):
+        with st.expander(f"📝 {len(st.session_state.errors)} errors during generation"):
             for err in st.session_state.errors:
                 st.error(err)
 
