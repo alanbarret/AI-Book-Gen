@@ -235,7 +235,7 @@ def show_landing():
             <a href="#">Pricing</a>
             <a href="https://inspiredtechnology.ae" target="_blank">Inspired Technology</a>
         </div>
-        <a href="?start=1" class="nav-cta" id="navCta">Try for Free →</a>
+        <a href="#" onclick="window.top.location.href=window.top.location.pathname+'?start=1'; return false;" class="nav-cta" id="navCta">Try for Free</a>
     </div>
 
     <!-- HERO -->
@@ -253,7 +253,7 @@ def show_landing():
             Fiction, non-fiction, technical guides, biographies — any genre, any language.
         </p>
         <div class="hero-btns">
-            <a href="?start=1" class="btn-green" id="heroStart">✨ Start Writing Free</a>
+            <a href="#" onclick="window.top.location.href=window.top.location.pathname+'?start=1'; return false;" class="btn-green" id="heroStart">Start Writing Free</a>
             <a href="https://inspiredtechnology.ae" target="_blank" class="btn-outline">Learn More →</a>
         </div>
         <div class="hero-stats">
@@ -467,7 +467,7 @@ def show_landing():
         <div style="position:relative;z-index:1">
             <h2 class="cta-title">Harness the Limitless<br>Potential of AI Writing</h2>
             <p class="cta-sub">Join the future of creative writing — powered by Inspired Technology's AI solutions.</p>
-            <a href="?start=1" class="btn-green" id="ctaBtn">✨ Start Writing for Free</a>
+            <a href="#" onclick="window.top.location.href=window.top.location.pathname+'?start=1'; return false;" class="btn-green" id="ctaBtn">Start Writing for Free</a>
             <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,0.45)">No credit card required · Free with Groq API key</div>
         </div>
     </div>
