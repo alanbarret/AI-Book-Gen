@@ -33,20 +33,17 @@ st.set_page_config(
 if "page" not in st.session_state:
     st.session_state.page = "landing"
 
-# URL param override
-params = st.query_params
-if params.get("page") == "app":
+# Detect ?start=1 query param FIRST (set by landing page CTA buttons)
+_qp = st.query_params
+if _qp.get("start") == "1" or _qp.get("page") == "app":
     st.session_state.page = "app"
+    st.query_params.clear()   # clean URL
+    st.rerun()
 
-# Show landing page
+# Show landing page (same tab - no new window)
 if st.session_state.page == "landing":
     from landing import show_landing
     show_landing()
-
-    if st.query_params.get("start") == "1":
-        st.session_state.page = "app"
-        st.rerun()
-
     st.stop()
 
 # --- Constants ----------------------------------------------------------------
@@ -556,8 +553,9 @@ st.markdown('''
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("Back to Home", key="back_home", icon=":material/arrow_back:"):
+    if st.button("Home", key="back_home", icon=":material/home:"):
         st.session_state.page = "landing"
+        st.query_params.clear()
         st.rerun()
 
 st.markdown("""
