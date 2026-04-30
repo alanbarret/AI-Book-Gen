@@ -509,6 +509,11 @@ button[kind="primary"]:hover {
 
 /* -- Info / success / warning tweaks -------------------------- */
 [data-testid="stAlert"] { border-radius: 10px !important; }
+/* Hide sidebar collapse button text/icon */
+[data-testid="collapsedControl"] { display: none !important; }
+[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+section[data-testid="stSidebar"] > div:first-child button { display: none !important; }
+
 
 
 /* Hide default Streamlit sidebar collapse arrow that shows as text */
@@ -545,7 +550,7 @@ st.markdown("""
 
 # --- Sidebar ------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### ⚠️ Generation Stats")
+    st.markdown("### Generation Stats")
     if st.session_state.stats["tokens"] > 0:
         c1, c2 = st.columns(2)
         with c1:
@@ -558,7 +563,7 @@ with st.sidebar:
 
     if st.session_state.chapters:
         st.markdown("---")
-        st.markdown("### ⚠️ Chapters")
+        st.markdown("### Chapters")
         for title in st.session_state.structure.keys():
             done = title in st.session_state.chapters
             icon = "✅" if done else "⏳"
@@ -568,7 +573,7 @@ col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("Configuration", expanded=False):
+    with st.expander("Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key)):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -596,7 +601,7 @@ with col_left:
         st.session_state.selected_model = GROQ_MODELS[0]
     model = st.session_state.get("selected_model", GROQ_MODELS[0])
 
-    st.markdown('<div class="section-heading">⚠️ Book Details</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">Book Details</div>', unsafe_allow_html=True)
 
     topic = st.text_area(
         "What is your book about?",
@@ -635,7 +640,7 @@ with col_left:
                              help="How many chapters to generate at once") if parallel else 1
 
 with col_right:
-    st.markdown('<div class="section-heading">⚠️ Generate Your Book</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">Generate</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
         st.success(f"Your book **{st.session_state.book_title}** is ready!")
@@ -662,7 +667,7 @@ with col_right:
         except Exception as e:
             st.warning(f"PDF export unavailable: {e}")
 
-        if st.button("🔄 Generate New Book", use_container_width=True):
+        if st.button("Generate New Book", use_container_width=True):
             for k in ["book", "book_title", "structure", "chapters", "generating", "progress",
                       "total_chapters", "stats", "errors", "completed"]:
                 del st.session_state[k]
@@ -703,7 +708,7 @@ if st.session_state.generating and not st.session_state.completed:
 
     ai_client, _ = get_client()
     if not ai_client:
-        st.error("⚠️ No API key configured.")
+        st.error("No API key configured.")
         st.session_state.generating = False
         st.stop()
 
@@ -723,11 +728,11 @@ if st.session_state.generating and not st.session_state.completed:
             st.session_state.total_chapters = len(chapters_list)
 
         except Exception as e:
-            st.error(f"⚠️ Failed to generate structure: {e}")
+            st.error(f"Failed to generate structure: {e}")
             st.session_state.generating = False
             st.stop()
 
-    st.markdown(f"## ⚠️ {book_title}")
+    st.markdown(f"## {book_title}")
     st.markdown(f"*{len(chapters_list)} chapters . {genre} . {language}*")
     st.markdown("---")
 
@@ -843,7 +848,7 @@ if st.session_state.generating and not st.session_state.completed:
 # --- Display completed book --------------------------------------------------
 if st.session_state.completed and st.session_state.chapters:
     st.markdown("---")
-    st.markdown(f"# ⚠️ {st.session_state.book_title}")
+    st.markdown(f"# {st.session_state.book_title}")
 
     tabs = st.tabs(list(st.session_state.chapters.keys())[:20])  # Max 20 tabs
     for tab, (ch_title, content) in zip(tabs, list(st.session_state.chapters.items())[:20]):
