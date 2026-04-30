@@ -585,14 +585,14 @@ button span:only-child { font-size: 0 !important; }
 # App page top navbar
 st.markdown('''
 <div class="app-navbar">
-  <div class="app-nav-logo"><span class="logo-icon">AI</span> Book<span>Gen</span></div>
+  <div class="app-nav-logo"><span class="logo-icon">AI</span><span class="logo-text"> Book<span class="logo-accent">Gen</span></span></div>
   <a href="https://inspiredtechnology.ae" target="_blank" style="color:#a78bfa;font-size:12px;text-decoration:none">by Inspired Technology ↗</a>
 </div>
 ''', unsafe_allow_html=True)
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("Home", key="back_home", icon=":material/home:"):
+    if st.button("Home", key="back_home"):
         st.session_state.page = "landing"
         st.query_params.clear()
         st.rerun()
@@ -629,7 +629,7 @@ col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("⚙ Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key)):
+    with st.expander("Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key)):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -657,7 +657,7 @@ with col_left:
         st.session_state.selected_model = GROQ_MODELS[0]
     model = st.session_state.get("selected_model", GROQ_MODELS[0])
 
-    st.markdown('<div class="section-heading">📝 Book Details</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">Book Details</div>', unsafe_allow_html=True)
 
     topic = st.text_area(
         "What is your book about?",
@@ -696,7 +696,7 @@ with col_left:
                              help="How many chapters to generate at once") if parallel else 1
 
 with col_right:
-    st.markdown('<div class="section-heading">🚀 Generate</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">Generate</div>', unsafe_allow_html=True)
 
     if st.session_state.completed and st.session_state.chapters:
         st.success(f"Your book **{st.session_state.book_title}** is ready!")
@@ -723,7 +723,7 @@ with col_right:
         except Exception as e:
             st.warning(f"PDF export unavailable: {e}")
 
-        if st.button("Generate New Book", use_container_width=True, icon=":material/refresh:"):
+        if st.button("Generate New Book", use_container_width=True):
             for k in ["book", "book_title", "structure", "chapters", "generating", "progress",
                       "total_chapters", "stats", "errors", "completed"]:
                 del st.session_state[k]
@@ -923,8 +923,8 @@ st.markdown('''
 
 /* App page navbar */
 .app-navbar {
-    background: rgba(9,9,11,0.95); border-bottom: 1px solid rgba(255,255,255,0.06);
-    padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(9,9,11,0.98); border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
     margin: -1rem -1rem 1.5rem; position: sticky; top: 0; z-index: 100;
     backdrop-filter: blur(12px);
 }
@@ -938,7 +938,10 @@ st.markdown('''
     font-size: 13px;
     font-weight: 900;
     letter-spacing: .5px;
+    display: inline-block;
 }
+.logo-text { color: #fff; font-weight: 800; }
+.logo-accent { color: #A8FF4B; }
 .app-nav-back {
     color: #6B7280; font-size: 13px; text-decoration: none;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
