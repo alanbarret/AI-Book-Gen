@@ -510,6 +510,11 @@ button[kind="primary"]:hover {
 /* -- Info / success / warning tweaks -------------------------- */
 [data-testid="stAlert"] { border-radius: 10px !important; }
 
+
+/* Hide default Streamlit sidebar collapse arrow that shows as text */
+[data-testid="collapsedControl"] { display: none !important; }
+button[kind="headerNoPadding"] svg { display: none !important; }
+
 /* -- Tabs ------------------------------------------------------ */
 [data-testid="stTabs"] [data-testid="stTab"] {
     font-weight: 600 !important; font-size: 0.85rem !important;
@@ -527,7 +532,7 @@ st.markdown('''
 
 col_back, _ = st.columns([1, 6])
 with col_back:
-    if st.button("← Back to Home", key="back_home"):
+    if st.button("< Back to Home", key="back_home"):
         st.session_state.page = "landing"
         st.rerun()
 
@@ -622,7 +627,7 @@ with col_left:
         height=80,
     )
 
-    parallel = st.toggle("⚠️ Parallel Generation", value=True,
+    parallel = st.toggle("⚡ Parallel Generation", value=True,
                           help="Generate multiple chapters simultaneously - much faster but uses more API credits")
 
     max_workers = st.slider("Parallel Workers", 2, 6, 3,
@@ -657,7 +662,7 @@ with col_right:
         except Exception as e:
             st.warning(f"PDF export unavailable: {e}")
 
-        if st.button("⚠️ Generate New Book", use_container_width=True):
+        if st.button("🔄 Generate New Book", use_container_width=True):
             for k in ["book", "book_title", "structure", "chapters", "generating", "progress",
                       "total_chapters", "stats", "errors", "completed"]:
                 del st.session_state[k]
@@ -846,7 +851,7 @@ if st.session_state.completed and st.session_state.chapters:
             st.markdown(content)
 
     if st.session_state.errors:
-        with st.expander(f"📝 {len(st.session_state.errors)} errors during generation"):
+        with st.expander(f"⚠️ {len(st.session_state.errors)} errors during generation"):
             for err in st.session_state.errors:
                 st.error(err)
 
