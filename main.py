@@ -26,7 +26,7 @@ st.set_page_config(
     page_title="AI Book Generator - Inspired Technology",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # --- Page routing -------------------------------------------------------------
@@ -524,6 +524,25 @@ button[kind="headerNoPadding"] svg { display: none !important; }
 [data-testid="stTabs"] [data-testid="stTab"] {
     font-weight: 600 !important; font-size: 0.85rem !important;
 }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* ── CRITICAL: Hide ALL Streamlit default icon buttons that show as text ── */
+button[data-testid="baseButton-headerNoPadding"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="stSidebarNavToggleButton"],
+.st-emotion-cache-1rtdyuf,
+.st-emotion-cache-nakul0,
+div[data-testid="stSidebarContent"] > div > button,
+section[data-testid="stSidebar"] > div > div > button { 
+    display: none !important; 
+    visibility: hidden !important;
+}
+/* Hide any span that contains Material icon text */
+button span:only-child { font-size: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
