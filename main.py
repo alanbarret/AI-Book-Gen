@@ -441,6 +441,8 @@ st.markdown("""
 
 /* -- Mobile: stack all columns --------------------------------- */
 @media (max-width: 768px) {
+    .app-navbar { padding: 10px 14px !important; }
+    .app-nav-logo { font-size: 14px !important; }
     [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
     [data-testid="stHorizontalBlock"] > [data-testid="column"] {
         min-width: 100% !important; flex: 1 1 100% !important;
@@ -583,7 +585,7 @@ button span:only-child { font-size: 0 !important; }
 # App page top navbar
 st.markdown('''
 <div class="app-navbar">
-  <div class="app-nav-logo">📚 AI Book<span>Gen</span></div>
+  <div class="app-nav-logo"><span class="logo-icon">AI</span> Book<span>Gen</span></div>
   <a href="https://inspiredtechnology.ae" target="_blank" style="color:#a78bfa;font-size:12px;text-decoration:none">by Inspired Technology ↗</a>
 </div>
 ''', unsafe_allow_html=True)
@@ -627,7 +629,7 @@ col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
     # --- Configuration expander ----------------------------------------
-    with st.expander("Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key), icon=":material/settings:"):
+    with st.expander("⚙ Configuration", expanded=not (st.session_state.groq_api_key or st.session_state.openai_api_key)):
         provider = st.radio(
             "AI Provider",
             ["Groq", "OpenAI"],
@@ -928,6 +930,15 @@ st.markdown('''
 }
 .app-nav-logo { font-size: 17px; font-weight: 800; color: #fff; display:flex;align-items:center;gap:8px; }
 .app-nav-logo span { color: #A8FF4B; }
+.logo-icon {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: #fff !important;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .5px;
+}
 .app-nav-back {
     color: #6B7280; font-size: 13px; text-decoration: none;
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);

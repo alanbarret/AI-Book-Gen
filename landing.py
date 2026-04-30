@@ -29,7 +29,7 @@ def show_landing():
         width: 34px; height: 34px; border-radius: 8px;
         background: linear-gradient(135deg, #7C3AED, #A855F7);
         display: flex; align-items: center; justify-content: center;
-        font-size: 18px;
+        font-size: 12px; font-weight: 900; color: #fff; letter-spacing: .5px;
     }
     .nav-logo-text { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -.3px; }
     .nav-logo-text span { color: #A8FF4B; }
@@ -213,6 +213,8 @@ def show_landing():
     @media (max-width: 768px) {
         .navbar { padding: 14px 20px; }
         .nav-links { display: none; }
+        .nav-logo { display: flex !important; }
+        .nav-logo-icon { display: flex !important; }
         .hero { padding: 110px 20px 60px; }
         .why-grid { grid-template-columns: 1fr; }
         .features-split { grid-template-columns: 1fr; }
@@ -226,8 +228,8 @@ def show_landing():
     <!-- NAVBAR -->
     <div class="navbar">
         <a class="nav-logo" href="#">
-            <div class="nav-logo-icon">📚</div>
-            <div class="nav-logo-text">AI Book<span>Gen</span></div>
+            <div class="nav-logo-icon">AI</div>
+            <div class="nav-logo-text">Book<span>Gen</span></div>
         </a>
         <div class="nav-links">
             <a href="#">Features</a>
